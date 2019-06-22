@@ -2,18 +2,24 @@ document.addEventListener("DOMContentLoaded", (e) => {
     addSomeListeners()
 })
 const userUrl = 'https://api.github.com/search/users?q='
-const repoUrl = `https://api.github.com/users`
-const keywordUrl = `https://api.github.com/search/repositories`
+const userRepoUrl = `https://api.github.com/users`
+const repoByuKeywordUrl = `https://api.github.com/search/repositories?q=`
 
 function addSomeListeners() {
-    let toggleSearchVal = document.getElementById("toggle-search")
     document.getElementById("github-form").addEventListener("submit", (e) => {
-        e.preventDefault()
-        toggleSearchVal === "users" ? userSearchCall() : keywordSearchCall()
+        e.preventDefault();
+        toggleDetector()
     })
 }
+
+function toggleDetector() {
+    let toggleSearchVal = document.getElementById("toggle-search").value
+    toggleSearchVal === "users" ? userSearchCall() : repoSearchCall()
+}
+
 function userSearchCall() {
-    let searchBox = document.getElementById("search").value
+    console.log("userSearchCall fires")
+    const searchBox = document.getElementById("search").value
     fetch(userUrl + searchBox, {
         method: "GET",
         headers: {
@@ -25,19 +31,14 @@ function userSearchCall() {
 }
 
 function showUsers(users) {
-    console.log(users)
     users.items.forEach(user => showUser(user))
 }
 
 function showUser(user) {
-
     let userList = document.getElementById("user-list")
 
     let li = document.createElement("li")
     li.setAttribute("class", "li-user")
-
-    // let pUser = document.createElement("p")
-    // pUser.innerText = user.login
 
     let a = document.createElement("a")
     a.setAttribute("href", user.html_url)
@@ -52,7 +53,6 @@ function showUser(user) {
 
     let br = document.createElement("br")
 
-    // li.appendChild(pUser)
     li.appendChild(a)
     li.appendChild(br)
     li.appendChild(avatar)
@@ -62,20 +62,24 @@ function showUser(user) {
 
 function userReposSearch(user) {
     console.log("userReposSearch fires")
-    fetch(repoUrl + '/' + user.login + '/' + "repos")
+    fetch(userRepoUrl + '/' + user.login + '/' + "repos", {
+        method: "GET",
+        headers: {
+            "Accept": "application / vnd.github.v3 + json"
+        }
+    })
         .then(res => res.json())
         // .then(repos => console.log(repos))
-        .then(repos => displayRepos(repos))
+        .then(repos => showRepos(repos))
         .catch(err => console.log(err))
 }
 
-function displayRepos(repos) {
+function showRepos(repos) {
     document.getElementById("repos-list").innerHTML = ''
-    repos.forEach(repo => displayRepo(repo))
-
+    repos.forEach(repo => showRepo(repo))
 }
 
-function displayRepo(repo) {
+function showRepo(repo) {
     let reposList = document.getElementById("repos-list")
 
     let li = document.createElement("li")
@@ -90,6 +94,32 @@ function displayRepo(repo) {
     reposList.appendChild(li)
 }
 
-function keywordSearchCall() {
-    console.log("keywordSearchCall fires")
+function repoSearchCall() {
+    console.log("repoSearchCall fires")
+    const searchBox = document.getElementById("search").value
+    fetch(repoByuKeywordUrl + '/' + searchBox)
+        .then(res => res.json())
+        // .then(repos => console.log(repos))
+        .then(repos => displayReposSearch(repos))
+        .catch(err => console.log(err))
+}
+
+function displayReposSearch(repos) {
+    repos.items.forEach(repo => displayRepo(repo))
+}
+
+function displayRepo(repo) {
+
+    let reposList = document.getElementById("repos-list")
+
+    let li = document.createElement("li")
+    li.setAttribute("Class", "li-repo")
+
+    let aRepo = document.createElement("a")
+    aRepo.setAttribute("href", repo.html_url)
+    aRepo.innerText = repo.html_url
+
+    li.appendChild(aRepo)
+
+    reposList.appendChild(li)
 }
