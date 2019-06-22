@@ -105,21 +105,5 @@ function repoSearchCall() {
 }
 
 function displayReposSearch(repos) {
-    repos.items.forEach(repo => displayRepo(repo))
-}
-
-function displayRepo(repo) {
-
-    let reposList = document.getElementById("repos-list")
-
-    let li = document.createElement("li")
-    li.setAttribute("Class", "li-repo")
-
-    let aRepo = document.createElement("a")
-    aRepo.setAttribute("href", repo.html_url)
-    aRepo.innerText = repo.html_url
-
-    li.appendChild(aRepo)
-
-    reposList.appendChild(li)
+    repos.items.forEach(repo => showRepo(repo))
 }
